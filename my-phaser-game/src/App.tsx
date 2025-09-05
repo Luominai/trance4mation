@@ -9,7 +9,8 @@ function App()
 
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
-    const cardSprite = useRef<Phaser.GameObjects.Sprite | null | undefined>(null)
+    const planeRef = useRef<Phaser.GameObjects.Plane | null | undefined>(null)
+    const meshRef = useRef<Phaser.GameObjects.Mesh | null | undefined>(null)
     const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
 
     const changeScene = () => {
@@ -81,7 +82,7 @@ function App()
         
     }
 
-    const addCard = () => {
+    const addPlane = () => {
         if (phaserRef.current)
         {
             const scene = phaserRef.current.scene;
@@ -91,23 +92,104 @@ function App()
                 const x = Phaser.Math.Between(64, scene.scale.width - 64);
                 const y = Phaser.Math.Between(64, scene.scale.height - 64);
     
-                cardSprite.current = scene.add.sprite(x, y, 'star');
-                flipCard()
+                planeRef.current = scene.make.plane({
+                    add: true,
+                    x: x,
+                    y: y,
+                    key: 'bg',
+                    width: 1,
+                    height: 1
+                })
+                planeRef.current.ignoreDirtyCache = true
+                // planeRef.current = scene.add.plane(x, y, 'star')
+
+                console.log(planeRef.current)
+
+                const topLeft = [planeRef.current.vertices[0]]
+                const topRight = [planeRef.current.vertices[2], planeRef.current.vertices[5]]
+                const bottomLeft = [planeRef.current.vertices[1], planeRef.current.vertices[3]]
+                const bottomRight = [planeRef.current.vertices[4]]
+
+                const timeline = scene.add.timeline({})
+                const duration = 1000
+                const scale = 1.2
+
+                timeline.add({
+                    tween: {
+                        targets: [...topLeft, ...topRight, ...bottomLeft, ...bottomRight],
+                        duration: duration,
+                        x: "*= -1"
+                    }
+                })
+                timeline.add({
+                    tween: {
+                        targets: [...topLeft, ...bottomLeft],
+                        duration: duration / 2,
+                        y: "*= 1.2"
+                    }
+                })
+                timeline.add({
+                    tween: {
+                        targets: [...topRight, ...bottomRight],
+                        duration: duration / 2,
+                        y: "/= 1.2"
+                    }
+                })
+                timeline.add({
+                    at: duration / 2,
+                    tween: {
+                        targets: [...topLeft, ...bottomLeft],
+                        duration: duration / 2,
+                        y: "/= 1.2"
+                    }
+                })
+                timeline.add({
+                    at: duration / 2,
+                    tween: {
+                        targets: [...topRight, ...bottomRight],
+                        duration: duration / 2,
+                        y: "*= 1.2"
+                    }
+                })
+
+                timeline.play()
             }
         }
     }
 
-    const flipCard = () => {
-        const scene = phaserRef.current?.scene
-        if (cardSprite.current) {
-            const middle = cardSprite.current.getTopLeft().x + cardSprite.current.width / 2
-            scene?.add.tween({
-                targets: cardSprite.current,
-                duration: 1000,
-                topLeftX: middle,
-            })
-        }
+    const addMesh = () => {
+        if (phaserRef.current){
+            const scene = phaserRef.current.scene
 
+            if (scene) {
+                const x = Phaser.Math.Between(64, scene.scale.width - 64);
+                const y = Phaser.Math.Between(64, scene.scale.height - 64);
+    
+                meshRef.current = scene.make.mesh({
+                    add: true,
+                    x: x,
+                    y: y,
+                    key: 'star',
+                })
+                meshRef.current.setPerspective(meshRef.current.width, meshRef.current.height)
+                Phaser.Geom.Mesh.GenerateGridVerts({
+                    mesh: meshRef.current,
+                    texture: 'star',
+                    width: 1,
+                    height: 1,
+                    widthSegments: 1,
+                    heightSegments: 1
+                })
+
+                // console.log(planeRef.current)
+                
+                // scene?.add.tween({
+                //     targets: planeRef.current.vertices[5],
+                //     duration: 1000,
+                //     x: "+=1",
+                // })
+            }
+        }
     }
 
     return (
@@ -130,10 +212,10 @@ function App()
                     <button className="button" onClick={changeScene}>Change Scene</button>
                 </div>
                 <div>
-                    <button className="button" onClick={addCard}>Add Card</button>
+                    <button className="button" onClick={addPlane}>Add Plane</button>
                 </div>
                 <div>
-                    <button className="button" onClick={flipCard}>Flip Card</button>
+                    <button className="button" onClick={addMesh}>Add Mesh</button>
                 </div>
             </div>
         </div>
