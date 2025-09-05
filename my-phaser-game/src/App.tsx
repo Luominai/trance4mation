@@ -82,117 +82,260 @@ function App()
         
     }
 
-    const addPlane = () => {
-        if (phaserRef.current)
-        {
-            const scene = phaserRef.current.scene;
-
-            if (scene)
-            {
-                const x = Phaser.Math.Between(64, scene.scale.width - 64);
-                const y = Phaser.Math.Between(64, scene.scale.height - 64);
-    
-                planeRef.current = scene.make.plane({
-                    add: true,
-                    x: x,
-                    y: y,
-                    key: 'bg',
-                    width: 1,
-                    height: 1
-                })
-                planeRef.current.ignoreDirtyCache = true
-
-                const topLeft = [planeRef.current.vertices[0]]
-                const topRight = [planeRef.current.vertices[2], planeRef.current.vertices[5]]
-                const bottomLeft = [planeRef.current.vertices[1], planeRef.current.vertices[3]]
-                const bottomRight = [planeRef.current.vertices[4]]
-
-                const timeline = scene.add.timeline({})
-                const duration = 1000
-                const scale = 1.2
-
-                timeline.add({
-                    tween: {
-                        targets: [...topLeft, ...topRight, ...bottomLeft, ...bottomRight],
-                        duration: duration,
-                        x: "*= -1"
-                    }
-                })
-                timeline.add({
-                    tween: {
-                        targets: [...topLeft, ...bottomLeft],
-                        duration: duration / 2,
-                        y: `*= ${scale}`
-                    }
-                })
-                timeline.add({
-                    tween: {
-                        targets: [...topRight, ...bottomRight],
-                        duration: duration / 2,
-                        y: `/= ${scale}`
-                    }
-                })
-                timeline.add({
-                    at: duration / 2,
-                    run: () => {
-                        planeRef.current?.setTexture('star')
-                    }
-                })
-                timeline.add({
-                    at: duration / 2,
-                    tween: {
-                        targets: [...topLeft, ...bottomLeft],
-                        duration: duration / 2,
-                        y: `/= ${scale}`
-                    }
-                })
-                timeline.add({
-                    at: duration / 2,
-                    tween: {
-                        targets: [...topRight, ...bottomRight],
-                        duration: duration / 2,
-                        y: `*= ${scale}`
-                    }
-                })
-
-                timeline.play()
-            }
+    const createTexture = () => {
+        if (!phaserRef.current) {
+            return
         }
+        if (!phaserRef.current.scene) {
+            return
+        }
+        const scene = phaserRef.current.scene;
+        var renderTexture = scene.make.renderTexture({
+            x: 0, y: 0,
+            width: 80, height: 40
+        })
+        var text = scene.make.text({
+            x: 0, y: 0,
+            padding: { x: 8, y: 8 },
+            text: "example card",
+            style: {
+                fontSize: '12px',
+                fontFamily: 'Arial',
+                color: '#ffffff',
+                align: 'center',  // 'left'|'center'|'right'|'justify'
+                backgroundColor: '#ff00ff',
+                fixedWidth: 80,
+                fixedHeight: 40,
+                wordWrap: {
+                    width: 80
+                }
+            },
+            add: true
+        })
+        renderTexture.draw(text)
+        renderTexture.saveTexture('myTexture')
     }
 
-    const addMesh = () => {
-        if (phaserRef.current){
-            const scene = phaserRef.current.scene
-
-            if (scene) {
-                const x = Phaser.Math.Between(64, scene.scale.width - 64);
-                const y = Phaser.Math.Between(64, scene.scale.height - 64);
-    
-                meshRef.current = scene.make.mesh({
-                    add: true,
-                    x: x,
-                    y: y,
-                    key: 'star',
-                })
-                meshRef.current.setPerspective(meshRef.current.width, meshRef.current.height)
-                Phaser.Geom.Mesh.GenerateGridVerts({
-                    mesh: meshRef.current,
-                    texture: 'star',
-                    width: 1,
-                    height: 1,
-                    widthSegments: 1,
-                    heightSegments: 1
-                })
-
-                // console.log(planeRef.current)
-                
-                // scene?.add.tween({
-                //     targets: planeRef.current.vertices[5],
-                //     duration: 1000,
-                //     x: "+=1",
-                // })
-            }
+    const addPlane = () => {
+        if (!phaserRef.current) {
+            return
         }
+        if (!phaserRef.current.scene) {
+            return
+        }
+        const scene = phaserRef.current.scene;
+        const x = Phaser.Math.Between(64, scene.scale.width - 64);
+        const y = Phaser.Math.Between(64, scene.scale.height - 64);
+
+        planeRef.current = scene.make.plane({
+            add: true,
+            x: x, y: y,
+            key: 'bg',
+            width: 1, height: 1
+        })
+        planeRef.current.ignoreDirtyCache = true
+
+        const topLeft = [planeRef.current.vertices[0]]
+        const topRight = [planeRef.current.vertices[2], planeRef.current.vertices[5]]
+        const bottomLeft = [planeRef.current.vertices[1], planeRef.current.vertices[3]]
+        const bottomRight = [planeRef.current.vertices[4]]
+
+        const timeline = scene.add.timeline({})
+        const duration = 1000
+        const scale = 1.2
+
+        timeline.add({
+            tween: {
+                targets: [...topLeft, ...topRight, ...bottomLeft, ...bottomRight],
+                duration: duration,
+                x: "*= -1"
+            }
+        })
+        timeline.add({
+            tween: {
+                targets: [...topLeft, ...bottomLeft],
+                duration: duration / 2,
+                y: `*= ${scale}`
+            }
+        })
+        timeline.add({
+            tween: {
+                targets: [...topRight, ...bottomRight],
+                duration: duration / 2,
+                y: `/= ${scale}`
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            run: () => {
+                planeRef.current?.setTexture('myTexture')
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            tween: {
+                targets: [...topLeft, ...bottomLeft],
+                duration: duration / 2,
+                y: `/= ${scale}`
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            tween: {
+                targets: [...topRight, ...bottomRight],
+                duration: duration / 2,
+                y: `*= ${scale}`
+            }
+        })
+
+        timeline.play()
+    }
+
+    const addText = () => {
+        if (!phaserRef.current) {
+            return
+        }
+        if (!phaserRef.current.scene) {
+            return
+        }
+        const scene = phaserRef.current.scene;
+        const x = Phaser.Math.Between(64, scene.scale.width - 64);
+        const y = Phaser.Math.Between(64, scene.scale.height - 64);
+        var rt = scene.make.renderTexture({
+            x: 0,
+            y: 0,
+            width: 32,
+            height: 32,
+        });
+        var txt = scene.make.text({
+            x: x,
+            y: y,
+            padding: {
+                x: 8,    // 32px padding on the left/right
+                y: 8     // 16px padding on the top/bottom
+            },
+            text: 'Text\nGame Object\nCreated from config',
+            style: {
+                fontSize: '12px',
+                fontFamily: 'Arial',
+                color: '#ffffff',
+                align: 'center',  // 'left'|'center'|'right'|'justify'
+                backgroundColor: '#ff00ff',
+                fixedWidth: 100,
+                wordWrap: {
+                    width: 80
+                }
+            },
+            // origin: {x: 0.5, y: 0.5},
+            add: true
+        });
+        console.log(txt)
+        // rt.draw(txt)
+        // rt.saveTexture('myRenderTexture')
+        // console.log(scene.textures)
+
+        // const text = scene.add.sprite(x, y, 'myRenderTexture');
+        // console.log(text)
+    }
+
+    const addCard = () => {
+        if (!phaserRef.current) {
+            return
+        }
+        if (!phaserRef.current.scene) {
+            return
+        }
+        const scene = phaserRef.current.scene;
+
+        const x = Phaser.Math.Between(64, scene.scale.width - 64);
+        const y = Phaser.Math.Between(64, scene.scale.height - 64);
+
+        const backImageKey = 'star'
+
+        var card = scene.make.plane({
+            add: true,
+            x: x,
+            y: y,
+            key: backImageKey,
+            width: 1,
+            height: 1
+        })
+
+        animateCardFlip(scene, card)
+    }
+
+    const addRenderTextureSprite = () => {
+        if (!phaserRef.current) {
+            return
+        }
+        if (!phaserRef.current.scene) {
+            return
+        }
+        const scene = phaserRef.current.scene
+        const x = Phaser.Math.Between(64, scene.scale.width - 64);
+        const y = Phaser.Math.Between(64, scene.scale.height - 64);
+        const text = scene.add.sprite(x, y, 'myTexture');
+    }
+
+    const animateCardFlip = (scene: Phaser.Scene, card: Phaser.GameObjects.Plane) => {
+        const frontImageKey = 'myTexture'
+
+        const topLeft = [card.vertices[0]]
+        const topRight = [card.vertices[2], card.vertices[5]]
+        const bottomLeft = [card.vertices[1], card.vertices[3]]
+        const bottomRight = [card.vertices[4]]
+
+        const timeline = scene.add.timeline({})
+        const duration = 1000
+        const scale = 1.2
+
+        card.ignoreDirtyCache = true
+
+        timeline.add({
+            tween: {
+                targets: [...topLeft, ...topRight, ...bottomLeft, ...bottomRight],
+                duration: duration,
+                x: "*= -1"
+            }
+        })
+        timeline.add({
+            tween: {
+                targets: [...topLeft, ...bottomLeft],
+                duration: duration / 2,
+                y: `*= ${scale}`
+            }
+        })
+        timeline.add({
+            tween: {
+                targets: [...topRight, ...bottomRight],
+                duration: duration / 2,
+                y: `/= ${scale}`
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            run: () => {
+                card.setTexture(frontImageKey)
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            tween: {
+                targets: [...topLeft, ...bottomLeft],
+                duration: duration / 2,
+                y: `/= ${scale}`
+            }
+        })
+        timeline.add({
+            at: duration / 2,
+            tween: {
+                targets: [...topRight, ...bottomRight],
+                duration: duration / 2,
+                y: `*= ${scale}`
+            }
+        })
+
+        timeline.play()
     }
 
     return (
@@ -218,7 +361,16 @@ function App()
                     <button className="button" onClick={addPlane}>Add Plane</button>
                 </div>
                 <div>
-                    <button className="button" onClick={addMesh}>Add Mesh</button>
+                    <button className="button" onClick={addText}>Add Text</button>
+                </div>
+                <div>
+                    <button className="button" onClick={addCard}>Add Card</button>
+                </div>
+                <div>
+                    <button className="button" onClick={addRenderTextureSprite}>Add Render Texture Sprite</button>
+                </div>
+                <div>
+                    <button className="button" onClick={createTexture}>Create Texture</button>
                 </div>
             </div>
         </div>
