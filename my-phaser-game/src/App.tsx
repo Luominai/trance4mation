@@ -134,6 +134,12 @@ function App()
                 })
                 timeline.add({
                     at: duration / 2,
+                    run: () => {
+                        planeRef.current?.setTexture('star')
+                    }
+                })
+                timeline.add({
+                    at: duration / 2,
                     tween: {
                         targets: [...topLeft, ...bottomLeft],
                         duration: duration / 2,
