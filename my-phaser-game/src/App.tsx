@@ -101,9 +101,6 @@ function App()
                     height: 1
                 })
                 planeRef.current.ignoreDirtyCache = true
-                // planeRef.current = scene.add.plane(x, y, 'star')
-
-                console.log(planeRef.current)
 
                 const topLeft = [planeRef.current.vertices[0]]
                 const topRight = [planeRef.current.vertices[2], planeRef.current.vertices[5]]
@@ -125,14 +122,14 @@ function App()
                     tween: {
                         targets: [...topLeft, ...bottomLeft],
                         duration: duration / 2,
-                        y: "*= 1.2"
+                        y: `*= ${scale}`
                     }
                 })
                 timeline.add({
                     tween: {
                         targets: [...topRight, ...bottomRight],
                         duration: duration / 2,
-                        y: "/= 1.2"
+                        y: `/= ${scale}`
                     }
                 })
                 timeline.add({
@@ -140,7 +137,7 @@ function App()
                     tween: {
                         targets: [...topLeft, ...bottomLeft],
                         duration: duration / 2,
-                        y: "/= 1.2"
+                        y: `/= ${scale}`
                     }
                 })
                 timeline.add({
@@ -148,7 +145,7 @@ function App()
                     tween: {
                         targets: [...topRight, ...bottomRight],
                         duration: duration / 2,
-                        y: "*= 1.2"
+                        y: `*= ${scale}`
                     }
                 })
 
