@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
+import { getFirestore, collection, getDocs, QuerySnapshot, DocumentData, onSnapshot } from "firebase/firestore";
 import 'dotenv/config'
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -24,39 +24,69 @@ const firebaseConfig = {
   measurementId: "G-VE2F8PH411"
 };
 
-console.log(process.env.NEXT_PUBLIC_API_KEY)
+// console.log(process.env.NEXT_PUBLIC_API_KEY)
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app)
 
+type User = {
+    name: string,
+    id: string
+}
 
 export default function List() {
-    const [data, setData] = useState<DocumentData[]>([])
+    const [data, setData] = useState<User[]>([])
 
     useEffect(() => {
         async function getData() {
             const querySnapshot = await getDocs(collection(firestore, "users"));
-            const newData: DocumentData[] = []
-
+            const newData: User[] = []
             querySnapshot.forEach((doc) => {
-                newData.push(doc)
-                console.log(`${doc.id} => ${doc.data()}`);
+                newData.push({name: doc.data().name, id: doc.id})
             });
-
             setData(newData)
         }
 
-        getData()
+        function connectListeners() {
+            return onSnapshot(collection(firestore, "users"), (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        setData((prev) => {
+                            const added = {name: change.doc.data().name, id: change.doc.id}
+                            return prev.concat([added])
+                        })
+                    }
+                    if (change.type === "modified") {
+                        setData((prev) => {
+                            const modified = prev.find((doc) => doc.id === change.doc.id)
+                            const newValue = {name: change.doc.data().name, id: change.doc.id}
+                            return prev.map((doc) => (doc === modified) ? newValue: doc)
+                        })
+                        console.log("modified", change.doc)
+                    }
+                    if (change.type === "removed") {
+                        setData((prev) => {
+                            const removed = prev.find((doc) => doc.id === change.doc.id)
+                            return prev.filter((doc) => doc != removed)
+                        })
+                        console.log("removed", change.doc)
+                    }
+                })
+            })
+        }
+
+        // getData()
+        const unsubscribe = connectListeners()
     },[])
 
     return (
         <>
-        <div className="h-screen w-screen flex items-center justify-center">
-            {data.map((entry, index) => {
+        <div className="h-screen w-screen flex items-center justify-center gap-x-2">
+            {data.map((entry) => {
                 return (
-                    <div key={entry.data().id}>
-                        {entry.data().name}
+                    <div className="w-16 bg-blue-300 rounded-sm text-center" key={entry.id}>
+                        {entry.name}
                     </div>
                 )
             })}
