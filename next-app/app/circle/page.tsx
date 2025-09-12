@@ -1,4 +1,7 @@
+'use client'
+
 import Image from "next/image"
+import { useState } from "react"
 
 type User = {
     name: string,
@@ -6,33 +9,52 @@ type User = {
     id: number
 }
 
+const defaultPeople: User[] = [
+    {name: "John", icon: "/vercel.svg", id: 0},
+    {name: "Jane", icon: "/window.svg", id: 1},
+    {name: "Jerry", icon: "/next.svg", id: 2}
+]
+
 
 export default function Circle() {
-    const people: User[] = [
-        {name: "John", icon: "/vercel.svg", id: 0},
-        {name: "Jane", icon: "/window.svg", id: 1},
-        {name: "Jerry", icon: "/next.svg", id: 2}
-    ]
+    const [people, setPeople] = useState<User[]>(defaultPeople)
+
+    function addPerson() {
+        
+    }
+
+    function removePerson() {
+        
+    }
+
     return (
+        <>
         <div className="h-screen w-screen flex items-center justify-center">
             {people.map((person, index) => {
                 const radius = 100
-                const rotation = (2 * Math.PI / people.length) * index 
+                const rotation = -Math.PI / 2 + (2 * Math.PI / people.length) * index 
                 const x = Math.round(Math.cos(rotation) * radius)
                 const y = Math.round(Math.sin(rotation) * radius)
                 
-                // Hey Tailwind I need these classes please
-                // translate-x-10 translate-y-10 -translate-x-10 -translate-y-10
-                const translateX = (x > 0) ? `translate-x-${x}` : `-translate-x-${-x}` 
-                const translateY = (y == 0) ? `translate-y-1` : (y > 0) ? `translate-y-${y}` : `-translate-y-${-y}` 
-                
                 return (
-                    <div className={`transform rounded-full bg-blue-500 size-16 absolute ${translateX} ${translateY}`}>
-                        {/* <Person person={person} key={person.id}/> */}
+                    <div style={{
+                        transform: `translate(${x}px, ${y}px)`,
+                        position: "absolute"
+                    }}>
+                        <Person person={person} key={person.id}/>
                     </div>
                 )
             })}
         </div>
+        <div className="flex justify-center">
+            <button className="w-32 bg-green-500" onClick={addPerson}>
+                Add Person
+            </button>
+            <button className="w-32 bg-red-500" onClick={removePerson}>
+                Remove Person
+            </button>
+        </div>
+        </>
     )
 }
 
