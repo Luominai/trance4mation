@@ -17,7 +17,9 @@ type Message = {
 const defaultPeople: User[] = [
     {name: "John", icon: "/vercel.svg", id: 0},
     {name: "Jane", icon: "/window.svg", id: 1},
-    {name: "Jerry", icon: "/next.svg", id: 2}
+    {name: "Jerry", icon: "/next.svg", id: 2},
+    {name: "Joe", icon: "/vercel.svg", id: 3},
+    {name: "Jill", icon: "/window.svg", id: 4},
 ]
 
 const defaultMessages: Message[] = [
@@ -34,16 +36,17 @@ export default function DiscussionCircle() {
         <div className="flex flex-row h-screen">
             {/* <Sidebar/> */}
             <div className="flex">
-                <div className="flex flex-col grow">
+                {/* <div className="flex flex-col grow">
                     <RoomNavigation/>
                     <div className="flex grow">
                         <Circle/>
                     </div>
-                </div>
+                </div> */}
                 
-                <div className="max-w-2/3 flex flex-col justify-end my-8">
+                <div className="grow flex flex-col justify-end my-8">
                     <DiscussionTopic topic={"Placeholder for topic"}/>
                     <ChatLog/>
+                    <Carousel users={people}/>
                 </div>
             </div>
         </div>
@@ -87,6 +90,57 @@ function Circle() {
             })}
         </div>
         </>
+    )
+}
+
+
+function Carousel({users}: {users: User[]}) {    
+    // vars for handling rendering
+    const [radius, setRadius] = useState(100)
+    const [selected, setSelected] = useState(-1)  // index of selected card
+
+    return (
+        <div style={{
+            perspective: "1000px",
+            width: "100vw",
+            display: "flex",
+            justifyContent: "center"
+        }}>
+            {users.map((user, index) => {
+                const zIndex = (index < users.length / 2) ? (-index) : -(users.length - index)
+                return (
+                    <div style={{
+                        transformStyle: "preserve-3d",
+                        zIndex: zIndex
+                    }}>  
+                        <div style={{
+                            position: "absolute",
+                            transformStyle: "preserve-3d",
+                            zIndex: (index < users.length / 2) ? (-index) : -(users.length - index),
+                            transform: `translate(-50%, ${(-150 / users.length) * -zIndex}%)`
+                        }}>
+                            <div style={{
+                                transformStyle: "preserve-3d",
+                                transform: `rotateY(${ (360 / users.length) * index}deg)`
+                            }}>
+                                    
+                                <div style={{
+                                    transformStyle: "preserve-3d",
+                                    transform: `translateZ(${radius}px)`
+                                }}>
+                                    <div style={{
+                                        transformStyle: "preserve-3d",
+                                        transform: `rotateY(${ (-360 / users.length) * index}deg)`
+                                    }}>
+                                        <Person person={user}/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            })}
+        </div>
     )
 }
 
