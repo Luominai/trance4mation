@@ -43,10 +43,16 @@ export default function DiscussionCircle() {
                     </div>
                 </div> */}
                 
-                <div className="grow flex flex-col justify-end my-8">
+                <div className="grow flex flex-col justify-end">
                     <DiscussionTopic topic={"Placeholder for topic"}/>
                     <ChatLog/>
-                    <Carousel users={people}/>
+                    <div style={{
+                        height: "80px",
+                        marginTop: "50px"
+                        // marginBottom: "-40px"
+                    }}>
+                        <Carousel users={people}/>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,16 +81,18 @@ function Circle() {
 
     return (
         <>
-        <div className="flex items-center justify-center grow">
+        <div className="flex items-center justify-center grow" style={{position: "relative"}}>
             {participants.map((participant, index) => {
                 const translation = translations[index]
                 
                 return (
                     <div key={participant.id} style={{
-                        transform: `translate(${translation.x}px, ${translation.y}px)`,
-                        position: "absolute"
+                        position: "absolute",
+                        top: `${20 * index}%`,
                     }}>
-                        <Person person={participant}/>
+                        <div style={{transform: `translate(0%, -50%)`}}>
+                            <Person person={participant}/>
+                        </div>
                     </div>
                 )
             })}
@@ -95,16 +103,16 @@ function Circle() {
 
 
 function Carousel({users}: {users: User[]}) {    
-    // vars for handling rendering
-    const [radius, setRadius] = useState(100)
-    const [selected, setSelected] = useState(-1)  // index of selected card
+    const radius = 100
 
     return (
         <div style={{
             perspective: "1000px",
             width: "100vw",
             display: "flex",
-            justifyContent: "center"
+            flexDirection: "column",
+            justifyContent: "end",
+            alignItems: "center"
         }}>
             {users.map((user, index) => {
                 const zIndex = (index < users.length / 2) ? (-index) : -(users.length - index)
