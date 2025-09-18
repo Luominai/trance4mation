@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image"
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 
 type User = {
     name: string,
@@ -31,74 +31,99 @@ const defaultMessages: Message[] = [
 
 
 export default function DiscussionCircle() {
+    const [room, setRoom] = useState<string | null>(null)
     const [people, setPeople] = useState<User[]>(defaultPeople)
+    const [collapsed, setCollapsed] = useState(false)
+    useEffect(() => {
+        function onResize() {
+            if (window.innerWidth < 750) {
+                setCollapsed(true)
+            }
+            else {
+                setCollapsed(false)
+            }
+        }
+        window.addEventListener("resize", onResize)
+        onResize()
+
+        return () => {
+            window.removeEventListener("resize", onResize)
+        }
+    }, [])
+
     return (
         <div className="flex flex-row h-screen">
-            {/* <Sidebar/> */}
-            <div className="flex">
-                {/* <div className="flex flex-col grow">
-                    <RoomNavigation/>
-                    <div className="flex grow">
-                        <Circle/>
-                    </div>
-                </div> */}
-                
-                <div className="grow flex flex-col justify-end">
-                    <DiscussionTopic topic={"Placeholder for topic"}/>
-                    <ChatLog/>
-                    <div style={{
-                        height: "80px",
-                        marginTop: "50px"
-                        // marginBottom: "-40px"
-                    }}>
-                        <Carousel users={people}/>
-                    </div>
+            {(!collapsed) ? <Sidebar/> : <></>}
+
+            <div className="grow flex flex-col justify-end">
+                <Navbar/>
+                {/* <DiscussionTopic topic={"Placeholder for topic"}/> */}
+                <ChatLog/>
+                <div style={{
+                    height: "80px",
+                    marginTop: "50px"
+                }}>
+                    <Carousel users={people}/>
                 </div>
             </div>
         </div>
     )
 }
 
-function Circle() {
-    const [participants, setParticipants] = useState<User[]>(defaultPeople)
-    const [speaker, setSpeaker] = useState<User | null>(defaultPeople[0])
+function Navbar() {
+    return (
+        <div className="bg-blue-400" style={{
+            position: "relative",
+            height: "30px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        }}>
+            <Image 
+                src={"/chevron-right-regular-full.svg"}
+                alt="Sidebar"
+                width={30}
+                height={30}
+                priority
+                style={{
+                    position: "absolute",
+                    left: 0
+                }}
+            />
+            <div>
+                Room name
+            </div>
+            <Image 
+                src={"/right-from-bracket-regular-full.svg"}
+                alt="Leave"
+                width={30}
+                height={30}
+                priority
+                style={{
+                    position: "absolute",
+                    right: 0
+                }}
+            />
+        </div>
+    )
+}
 
-    const radius = 100
-    const rotationStep = (2 * Math.PI) / (participants.length - 1)
-    let rotation = -Math.PI / 2
-
-    const translations = participants.map((participant) => {
-        if (participant === speaker) {
-            return {x: 0, y: 0}
-        }
-        else {
-            const x = Math.round(Math.cos(rotation) * radius)
-            const y = Math.round(Math.sin(rotation) * radius)
-            rotation += rotationStep
-            return {x: x, y: y}
-        }
-    })
+function Sidebar() {
+    const [width, setWidth] = useState('100%')
 
     return (
         <>
-        <div className="flex items-center justify-center grow" style={{position: "relative"}}>
-            {participants.map((participant, index) => {
-                const translation = translations[index]
+            <div className="bg-blue-200" style={{
+                width: width,
+            }}>
                 
-                return (
-                    <div key={participant.id} style={{
-                        position: "absolute",
-                        top: `${20 * index}%`,
-                    }}>
-                        <div style={{transform: `translate(0%, -50%)`}}>
-                            <Person person={participant}/>
-                        </div>
-                    </div>
-                )
-            })}
-        </div>
+            </div>
         </>
     )
+}
+
+function Browse() {
+
 }
 
 
@@ -108,7 +133,7 @@ function Carousel({users}: {users: User[]}) {
     return (
         <div style={{
             perspective: "1000px",
-            width: "100vw",
+            width: "100%",
             display: "flex",
             flexDirection: "column",
             justifyContent: "end",
@@ -152,17 +177,6 @@ function Carousel({users}: {users: User[]}) {
     )
 }
 
-function RoomNavigation() {
-    return (
-        <input
-        type="text"
-        placeholder="Room Id"
-        className="bg-blue-200 rounded-full text-base p-1 px-2"
-        >
-        </input>
-    )
-}
-
 function DiscussionTopic({topic}: {topic: string}) {
     return (
         <div className="font-bold text-xl text-center">
@@ -174,7 +188,7 @@ function DiscussionTopic({topic}: {topic: string}) {
 function ChatLog() {
     const [messages, setMessages] = useState<Message[]>(defaultMessages)
     return (
-        <div className="flex flex-col gap-2 mx-2 bg-blue-100 p-2 grow justify-end">
+        <div className="flex flex-col gap-2 bg-blue-100 p-2 grow justify-end">
             <div className="flex flex-col gap-2 items-start">
                 {messages.map((message) => <ChatMessage message={message}/>)}
             </div>
