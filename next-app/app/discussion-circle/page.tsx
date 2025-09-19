@@ -14,6 +14,19 @@ type Message = {
     sender: User
 }
 
+type Room = {
+    isAnonymous: boolean,
+    numParticipants: number,
+    maxParticipants: number,
+    colorTheme: string,
+    timeLimit: number,
+    rounds: number,
+    code: string,
+    name: string,
+    icon: string,
+    description: string
+}
+
 const defaultPeople: User[] = [
     {name: "John", icon: "/vercel.svg", id: 0},
     {name: "Jane", icon: "/window.svg", id: 1},
@@ -25,18 +38,58 @@ const defaultPeople: User[] = [
 const defaultMessages: Message[] = [
     {text: "i am john", sender: defaultPeople[0]},
     {text: "jane am i", sender: defaultPeople[1]},
-    {text: "Donec efficitur mattis nibh nec gravida. Phasellus varius lorem vel turpis convallis scelerisque. Maecenas cursus, magna non pulvinar mattis, justo metus auctor diam, ut faucibus felis felis in augue. Phasellus consequat, justo id bibendum volutpat, orci urna finibus sapien, nec lacinia lacus est eu metus. Proin nunc nulla, luctus ac turpis eu, bibendum facilisis nisi. Proin dui mauris, euismod non neque quis, volutpat eleifend velit. Duis feugiat sapien dui, et lobortis ex iaculis non. Proin feugiat non sapien eget lacinia. Nunc cursus turpis magna, quis scelerisque ex tempus nec. Aenean ac placerat diam. Praesent eleifend dui mi, nec gravida ex lobortis id. ", 
+    {text: "Donec efficitur mattis nibh nec gravida. Phasellus varius lorem vel turpis convallis scelerisque.", 
         sender: defaultPeople[2]}
+]
+
+const defaultRooms: Room[] = [
+    {
+        isAnonymous: false,
+        numParticipants: 2,
+        maxParticipants: 3,
+        colorTheme: "idk",
+        timeLimit: 10,
+        rounds: 3,
+        code: "ABCD",
+        name: "counseling",
+        icon: "/vercel.svg",
+        description: "this is a room to talk about school"
+    },
+    {
+        isAnonymous: true,
+        numParticipants: 3,
+        maxParticipants: 4,
+        colorTheme: "idk",
+        timeLimit: 5,
+        rounds: 3,
+        code: "EFGH",
+        name: "philosophical cookies",
+        icon: "/next.svg",
+        description: "this is a room to talk about the meaning of life and also cookie recipes"
+    },
+    {
+        isAnonymous: true,
+        numParticipants: 3,
+        maxParticipants: 4,
+        colorTheme: "idk",
+        timeLimit: 5,
+        rounds: 3,
+        code: "EFGH",
+        name: "room 1",
+        icon: "/window.svg",
+        description: ""
+    },
 ]
 
 
 export default function DiscussionCircle() {
+    const [roomListings, setRoomListings] = useState(defaultRooms)
     const [room, setRoom] = useState<string | null>(null)
     const [people, setPeople] = useState<User[]>(defaultPeople)
     const [collapsed, setCollapsed] = useState(false)
     useEffect(() => {
         function onResize() {
-            if (window.innerWidth < 750) {
+            if (window.innerWidth < 600) {
                 setCollapsed(true)
             }
             else {
@@ -53,11 +106,19 @@ export default function DiscussionCircle() {
 
     return (
         <div className="flex flex-row h-screen">
-            {(!collapsed) ? <Sidebar/> : <></>}
-
-            <div className="grow flex flex-col justify-end">
+            {(!collapsed) 
+            ? 
+                <div className="bg-red-200 w-1/4 flex flex-col">
+                    <Search/>
+                    <div className="flex flex-col grow bg-blue-400 p-1 gap-1">
+                        {roomListings.map((room) => <RoomListing room={room}/>)}
+                    </div>
+                </div> 
+            : 
+                <></>
+            }
+            <div className="flex flex-col bg-blue-200 w-3/4 grow">
                 <Navbar/>
-                {/* <DiscussionTopic topic={"Placeholder for topic"}/> */}
                 <ChatLog/>
                 <div style={{
                     height: "80px",
@@ -80,18 +141,20 @@ function Navbar() {
             alignItems: "center"
         }}>
             <Image 
-                src={"/chevron-right-regular-full.svg"}
-                alt="Sidebar"
-                width={30}
-                height={30}
-                priority
-                style={{
-                    position: "absolute",
-                    left: 0
-                }}
+            src={"/chevron-right-regular-full.svg"}
+            alt="Sidebar"
+            width={30}
+            height={30}
+            priority
+            style={{
+                position: "absolute",
+                left: 0
+            }}
             />
-            <div>
-                Room name
+            <div className="flex justify-center" style={{width: 0}}>
+                <div style={{minWidth: "60vw", textAlign: "center"}}>
+                    Room name
+                </div>
             </div>
             <Image 
                 src={"/right-from-bracket-regular-full.svg"}
@@ -108,28 +171,86 @@ function Navbar() {
     )
 }
 
-function Sidebar() {
-    const [width, setWidth] = useState('100%')
-
+function Search() {
     return (
-        <>
-            <div className="bg-blue-200" style={{
-                width: width,
-            }}>
-                
-            </div>
-        </>
+        <div className="flex w-full bg-blue-300 p-2">
+            <input
+            type="text"
+            placeholder="Room Code"
+            className="bg-blue-200 rounded-full text-base p-1 px-2 w-full"
+            >
+            </input>
+            <Image
+            src={"/plus-regular-full.svg"}
+            alt="Create Room"
+            width={30}
+            height={30}
+            priority
+            />
+        </div>
     )
 }
 
-function Browse() {
+function RoomListing({room}: {room: Room}) {
+    return (
+        <div className="flex flex-col bg-blue-200 rounded-md">
+            <div className="flex grow-2 bg-blue-100 m-1 rounded-md items-center px-1 gap-2">
+                <Image 
+                src={room.icon}
+                alt="Sidebar"
+                width={20}
+                height={20}
+                priority
+                />
+                <div className="flex flex-col">
+                    <div className="text-base">
+                        {room.name}
+                    </div>
+                    <div className="text-sm">
+                        {room.description}
+                    </div>
+                </div>
+            </div>
 
+            <div className="flex grow-1 gap-4">
+                <div className="flex items-center w-12">
+                    <Image 
+                    src={"/user-regular-full.svg"}
+                    alt="participants"
+                    width={20}
+                    height={20}
+                    priority
+                    />
+                    {room.numParticipants}
+                    /
+                    {room.maxParticipants}
+                </div>
+                <div className="flex items-center w-12">
+                    <Image 
+                    src={"/alarm-clock-regular-full.svg"}
+                    alt="participants"
+                    width={20}
+                    height={20}
+                    priority
+                    />
+                    {room.timeLimit}s
+                </div>
+                <div className="flex items-center w-12">
+                    <Image 
+                    src={"/rotate-left-regular-full.svg"}
+                    alt="participants"
+                    width={20}
+                    height={20}
+                    priority
+                    />
+                    {room.rounds}
+                </div>
+            </div>
+        </div>
+    )
 }
 
-
-function Carousel({users}: {users: User[]}) {    
-    const radius = 100
-
+function Carousel({users, radius = 100}: {users: User[], radius?: number}) {    
     return (
         <div style={{
             perspective: "1000px",
@@ -177,14 +298,6 @@ function Carousel({users}: {users: User[]}) {
     )
 }
 
-function DiscussionTopic({topic}: {topic: string}) {
-    return (
-        <div className="font-bold text-xl text-center">
-            {topic}
-        </div>
-    )
-}
-
 function ChatLog() {
     const [messages, setMessages] = useState<Message[]>(defaultMessages)
     return (
@@ -217,16 +330,45 @@ function ChatInput() {
 }
 
 function Person({person} : {person: User}) {
+    const [timerVisible, setTimerVisible] = useState(true)
+    const [strokeOffset, setStrokeOffset] = useState(0)
+    const [discussionTime, setDiscussionTime] = useState(5)
+
+    useEffect(() => {
+        setStrokeOffset(2 * Math.PI * 46)
+    })
+
     return (
         <div className="rounded-full bg-blue-500 size-16 place-content-center flex">
             <Image
-                className="dark:invert"
-                src={person.icon}
-                alt="Next.js logo"
-                width={40}
-                height={40}
-                priority
+            className="dark:invert"
+            src={person.icon}
+            alt="Next.js logo"
+            width={40}
+            height={40}
+            priority
             />
+            {timerVisible 
+            ?
+                <svg 
+                style={{
+                    position: "absolute",
+                    transition: `stroke-dashoffset ${discussionTime}s linear`,
+                    transform: "rotateY(-180deg) rotateZ(-90deg)"
+                }} 
+                viewBox="0 0 100 100" 
+                stroke="red" 
+                fill="none" 
+                strokeWidth={4}
+                strokeDasharray={`${2 * Math.PI * 46}px`}
+                strokeDashoffset={`${strokeOffset}px`}
+                >
+                    <circle r={46} cx={50} cy={50}/>
+                </svg>
+            :
+                <></>
+            }
+
         </div>
     )
 }
