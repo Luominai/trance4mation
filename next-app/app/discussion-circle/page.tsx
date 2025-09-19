@@ -337,7 +337,7 @@ function Person({person} : {person: User}) {
 
     useEffect(() => {
         setStrokeOffset(2 * Math.PI * 46)
-    })
+    }, [])
 
     return (
         <div className="rounded-full bg-blue-500 size-16 place-content-center flex">
