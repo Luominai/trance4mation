@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image"
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 type User = {
     name: string,
@@ -11,7 +11,8 @@ type User = {
 
 type Message = {
     text: string,
-    sender: User
+    sender: User,
+    id: number
 }
 
 type Room = {
@@ -36,10 +37,10 @@ const defaultPeople: User[] = [
 ]
 
 const defaultMessages: Message[] = [
-    {text: "i am john", sender: defaultPeople[0]},
-    {text: "jane am i", sender: defaultPeople[1]},
+    {text: "i am john", sender: defaultPeople[0], id: 0},
+    {text: "jane am i", sender: defaultPeople[1], id: 1},
     {text: "Donec efficitur mattis nibh nec gravida. Phasellus varius lorem vel turpis convallis scelerisque.", 
-        sender: defaultPeople[2]}
+        sender: defaultPeople[2], id: 2}
 ]
 
 const defaultRooms: Room[] = [
@@ -111,7 +112,7 @@ export default function DiscussionCircle() {
                 <div className="bg-red-200 w-1/4 flex flex-col">
                     <Search/>
                     <div className="flex flex-col grow bg-blue-400 p-1 gap-1">
-                        {roomListings.map((room) => <RoomListing room={room}/>)}
+                        {roomListings.map((room) => <RoomListing room={room} key={room.code}/>)}
                     </div>
                 </div> 
             : 
@@ -263,7 +264,7 @@ function Carousel({users, radius = 100}: {users: User[], radius?: number}) {
             {users.map((user, index) => {
                 const zIndex = (index < users.length / 2) ? (-index) : -(users.length - index)
                 return (
-                    <div style={{
+                    <div key={user.id} style={{
                         transformStyle: "preserve-3d",
                         zIndex: zIndex
                     }}>  
@@ -303,7 +304,7 @@ function ChatLog() {
     return (
         <div className="flex flex-col gap-2 bg-blue-100 p-2 grow justify-end">
             <div className="flex flex-col gap-2 items-start">
-                {messages.map((message) => <ChatMessage message={message}/>)}
+                {messages.map((message) => <ChatMessage message={message} key={message.id}/>)}
             </div>
             <ChatInput/>
         </div>
